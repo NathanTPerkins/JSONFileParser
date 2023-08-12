@@ -48,11 +48,11 @@ json_parser::parser& json_parser::parser::operator=(const parser& p){
     this->data = new char**[this->size];
     for(int i = 0; i < this->size; ++i){
         this->data[i] = new char*[2];
-        this->data[i][0] = new char[100];
-        this->data[i][1] = new char[100];
+        this->data[i][0] = new char[this->_longestEntry];
+        this->data[i][1] = new char[this->_longestEntry];
 
-        memset(this->data[i][0], 0, 100);
-        memset(this->data[i][1], 0, 100);
+        memset(this->data[i][0], 0, this->_longestEntry);
+        memset(this->data[i][1], 0, this->_longestEntry);
     }
 
     for(int i = 0; i < this->size; ++i){
@@ -73,11 +73,11 @@ json_parser::parser::parser(const parser& p){
     this->data = new char**[this->size];
     for(int i = 0; i < this->size; ++i){
         this->data[i] = new char*[2];
-        this->data[i][0] = new char[100];
-        this->data[i][1] = new char[100];
+        this->data[i][0] = new char[this->_longestEntry];
+        this->data[i][1] = new char[this->_longestEntry];
 
-        memset(this->data[i][0], 0, 100);
-        memset(this->data[i][1], 0, 100);
+        memset(this->data[i][0], 0, this->_longestEntry);
+        memset(this->data[i][1], 0, this->_longestEntry);
     }
 
     for(int i = 0; i < this->size; ++i){
