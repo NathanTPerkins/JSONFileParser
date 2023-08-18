@@ -4,15 +4,15 @@ json_parser::arduino_parser::arduino_parser(const char * filename){
     this->filename = new char[strlen(filename) + 1];
     strcpy(this->filename, filename);
 
-    FILE * json_file = fopen(filename, "r");
+    File json_file = SD.open(filename, FILE_READ);
     if(json_file == NULL){
-        throw ERROR_CODES::FILE_NOT_FOUND;
+        return;
     }
-    if(!bracketCheck(json_file)){
-        throw ERROR_CODES::FILE_FORMATTING_ERROR;
+    if(!bracketCheck(&json_file)){
+        return;
     }
     int numEntries = 0, longestEntry = 0;
-    getFormatData(json_file, &numEntries, &longestEntry);
+    getFormatData(&json_file, &numEntries, &longestEntry);
     this->_longestEntry = longestEntry;
     this->size = numEntries;
     this->data = new char**[numEntries];
@@ -25,24 +25,23 @@ json_parser::arduino_parser::arduino_parser(const char * filename){
         memset(this->data[i][1], 0, longestEntry);
     }
 
-    setData(json_file);
+    setData(&json_file);
 
-    fclose(json_file);
+    json_file.close();
 }
 
 json_parser::arduino_parser::arduino_parser(const char * filename, int longest_entry_buffer){
     this->filename = new char[strlen(filename) + 1];
     strcpy(this->filename, filename);
-
-    FILE * json_file = fopen(filename, "r");
-    if(json_file == NULL){
-        throw ERROR_CODES::FILE_NOT_FOUND;
+    if(!SD.begin()){
+        while(true);
     }
-    if(!bracketCheck(json_file)){
-        throw ERROR_CODES::FILE_FORMATTING_ERROR;
+    File json_file = SD.open(filename, FILE_READ);
+    if(!bracketCheck(&json_file)){
+        return;
     }
     int numEntries = 0, longestEntry = 0;
-    getFormatData(json_file, &numEntries, &longestEntry);
+    getFormatData(&json_file, &numEntries, &longestEntry);
     this->_longestEntry = longest_entry_buffer;
     this->size = numEntries;
     this->data = new char**[numEntries];
@@ -55,9 +54,9 @@ json_parser::arduino_parser::arduino_parser(const char * filename, int longest_e
         memset(this->data[i][1], 0, longest_entry_buffer);
     }
 
-    setData(json_file);
+    setData(&json_file);
 
-    fclose(json_file);
+    json_file.close();
 }
 
 json_parser::arduino_parser& json_parser::arduino_parser::operator=(const arduino_parser& p){
@@ -116,9 +115,9 @@ json_parser::arduino_parser::arduino_parser(const arduino_parser& p){
     }
 }
 
-u_int8_t json_parser::arduino_parser::bracketCheck(FILE * json_file){
+u_int8_t json_parser::arduino_parser::bracketCheck(File * json_file){
     char c, bracket;
-    while((c = getc(json_file)) != EOF){
+    while((c = json_file->read()) != EOF){
         if(c == '{'){
             bracket = '{';
         }
@@ -129,7 +128,14 @@ u_int8_t json_parser::arduino_parser::bracketCheck(FILE * json_file){
     return 1;
 }
 
-u_int8_t json_parser::arduino_parser::getFormatData(FILE * json_file, int * numEntries, int * longestEntry){
+void json_parser::arduino_parser::rewind(File* input_file){
+    char filename[strlen(input_file->name()) + 1];
+    strcpy(filename, input_file->name());
+    input_file->close();
+    *input_file = SD.open(filename, FILE_READ);
+}
+
+u_int8_t json_parser::arduino_parser::getFormatData(File * json_file, int * numEntries, int * longestEntry){
     if(!json_file){
         return 0;
     }
@@ -139,7 +145,7 @@ u_int8_t json_parser::arduino_parser::getFormatData(FILE * json_file, int * numE
     int long_e = 0;
     *numEntries = 0;
     *longestEntry = 0;
-    while((c = fgetc(json_file)) != EOF){
+    while((c = json_file->read()) != EOF){
         if(c == '\n' || c == 32 || c == '{' || c == '\t'){
             if(inQuotes && c == 32){
                 ++long_e;
@@ -177,7 +183,7 @@ u_int8_t json_parser::arduino_parser::getFormatData(FILE * json_file, int * numE
     return 1;
 }
 
-u_int8_t json_parser::arduino_parser::setData(FILE *f){
+u_int8_t json_parser::arduino_parser::setData(File *f){
     if(!f){
         return 0;
     }
@@ -187,7 +193,7 @@ u_int8_t json_parser::arduino_parser::setData(FILE *f){
     bool hasKey = false, inBracket = true, inQuotes = false;
     int long_e = 0;
     int i = 0, j = 0;
-    while((c = fgetc(f)) != EOF){
+    while((c = f->read()) != EOF){
         if(c == '\n' || c == 32 || c == '{' || c == '\t'){
             if(inQuotes && c == 32){
                 strncat(this->data[i][j], &c, 1);
@@ -230,17 +236,24 @@ u_int8_t json_parser::arduino_parser::setData(FILE *f){
 }
 
 u_int8_t json_parser::arduino_parser::save(const char *filename){
-    FILE *file = fopen(filename, "w");
+    File file = SD.open(filename, FILE_WRITE);
     if(file == NULL){
         return 0;
     }
-    fprintf(file, "{");
+    file.write("{");
     for(int i = 0; i < this->size - 1; ++i){
-        fprintf(file, "\n\t\"%s\":\"%s\",", this->data[i][0], this->data[i][1]);
+        file.write("\n\t\"");
+        file.write(this->data[i][0]);
+        file.write("\":\"");
+        file.write(this->data[i][1]);
+        file.write(",");
     }
-    fprintf(file, "\n\t\"%s\":\"%s\"", this->data[this->size - 1][0], this->data[this->size - 1][1]);
-    fprintf(file, "\n}");
-    fclose(file);
+    file.write("\n\t\"");
+    file.write(this->data[this->size - 1][0]);
+    file.write("\":\"");
+    file.write(this->data[this->size - 1][1]);
+    file.write("\n}");
+    file.close();
     return 1;
 }
 

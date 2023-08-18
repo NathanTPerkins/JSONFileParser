@@ -7,8 +7,8 @@
 #define ARDUINO_PARSER
 
 #ifdef ARDUINO_PARSER
-// #include <SD.h>
-// #include <Arduino.h>
+#include <SD.h>
+#include <Arduino.h>
 #endif
 
 namespace json_parser{
@@ -50,9 +50,10 @@ namespace json_parser{
     size_t size;
     int _longestEntry;
 
-    u_int8_t bracketCheck(FILE *);
-    u_int8_t getFormatData(FILE *, int *, int *);
-    u_int8_t setData(FILE *);
+    u_int8_t bracketCheck(File *);
+    u_int8_t getFormatData(File *, int *, int *);
+    u_int8_t setData(File *);
+    void rewind(File*);
 
     public:
     arduino_parser(const char *);
