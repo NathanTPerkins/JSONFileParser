@@ -1,6 +1,6 @@
 #include "JSONParser.h"
 
-json_parser::parser::parser(const char * filename){
+json_parser::arduino_parser::arduino_parser(const char * filename){
     this->filename = new char[strlen(filename) + 1];
     strcpy(this->filename, filename);
 
@@ -30,7 +30,7 @@ json_parser::parser::parser(const char * filename){
     fclose(json_file);
 }
 
-json_parser::parser::parser(const char * filename, int longest_entry_buffer){
+json_parser::arduino_parser::arduino_parser(const char * filename, int longest_entry_buffer){
     this->filename = new char[strlen(filename) + 1];
     strcpy(this->filename, filename);
 
@@ -60,7 +60,7 @@ json_parser::parser::parser(const char * filename, int longest_entry_buffer){
     fclose(json_file);
 }
 
-json_parser::parser& json_parser::parser::operator=(const parser& p){
+json_parser::arduino_parser& json_parser::arduino_parser::operator=(const arduino_parser& p){
     delete [] this->filename;
     for(int i = 0; i < this->size; ++i){
         delete [] this->data[i][0];
@@ -92,7 +92,7 @@ json_parser::parser& json_parser::parser::operator=(const parser& p){
     return *this;
 }
 
-json_parser::parser::parser(const parser& p){
+json_parser::arduino_parser::arduino_parser(const arduino_parser& p){
 
     this->size = p.size;
     this->_longestEntry = p._longestEntry;
@@ -116,7 +116,7 @@ json_parser::parser::parser(const parser& p){
     }
 }
 
-u_int8_t json_parser::parser::bracketCheck(FILE * json_file){
+u_int8_t json_parser::arduino_parser::bracketCheck(FILE * json_file){
     char c, bracket;
     while((c = getc(json_file)) != EOF){
         if(c == '{'){
@@ -129,7 +129,7 @@ u_int8_t json_parser::parser::bracketCheck(FILE * json_file){
     return 1;
 }
 
-u_int8_t json_parser::parser::getFormatData(FILE * json_file, int * numEntries, int * longestEntry){
+u_int8_t json_parser::arduino_parser::getFormatData(FILE * json_file, int * numEntries, int * longestEntry){
     if(!json_file){
         return 0;
     }
@@ -177,7 +177,7 @@ u_int8_t json_parser::parser::getFormatData(FILE * json_file, int * numEntries, 
     return 1;
 }
 
-u_int8_t json_parser::parser::setData(FILE *f){
+u_int8_t json_parser::arduino_parser::setData(FILE *f){
     if(!f){
         return 0;
     }
@@ -229,7 +229,7 @@ u_int8_t json_parser::parser::setData(FILE *f){
     return 1;
 }
 
-u_int8_t json_parser::parser::save(const char *filename){
+u_int8_t json_parser::arduino_parser::save(const char *filename){
     FILE *file = fopen(filename, "w");
     if(file == NULL){
         return 0;
@@ -244,11 +244,11 @@ u_int8_t json_parser::parser::save(const char *filename){
     return 1;
 }
 
-u_int8_t json_parser::parser::save(){
+u_int8_t json_parser::arduino_parser::save(){
     return this->save(this->filename);
 }
 
-char *json_parser::parser::get(const char *key)const{
+char *json_parser::arduino_parser::get(const char *key)const{
     for(int i = 0; i < this->size; ++i){
         if(strcmp(this->data[i][0], key) == 0){
             return this->data[i][1];
@@ -257,7 +257,7 @@ char *json_parser::parser::get(const char *key)const{
     return NULL;
 }
 
-u_int8_t json_parser::parser::set(const char*key, char *value){
+u_int8_t json_parser::arduino_parser::set(const char*key, char *value){
     for(int i = 0; i < this->size; ++i){
         if(strcmp(this->data[i][0], key) == 0){
             if(strlen(value) > this->_longestEntry){
@@ -270,7 +270,7 @@ u_int8_t json_parser::parser::set(const char*key, char *value){
     return 0;
 }
 
-json_parser::parser::~parser(){
+json_parser::arduino_parser::~arduino_parser(){
     delete [] this->filename;
     for(int i = 0; i < this->size; ++i){
         delete [] this->data[i][0];

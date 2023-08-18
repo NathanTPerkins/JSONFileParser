@@ -33,3 +33,5 @@
 
 *.json
 test.cpp
+Arduino-SD-for-PC/
+Arduino-Cores-for-PC/
