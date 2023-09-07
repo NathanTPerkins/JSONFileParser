@@ -14,9 +14,9 @@ json_parser::arduino_parser::arduino_parser(const char * filename){
     int numEntries = 0, longestEntry = 0;
     getFormatData(&json_file, &numEntries, &longestEntry);
     this->_longestEntry = longestEntry;
-    this->size = numEntries;
+    this->_size = numEntries;
     this->data = new char**[numEntries];
-    for(int i = 0; i < this->size; ++i){
+    for(int i = 0; i < this->_size; ++i){
         this->data[i] = new char*[2];
         this->data[i][0] = new char[longestEntry];
         this->data[i][1] = new char[longestEntry];
@@ -43,9 +43,9 @@ json_parser::arduino_parser::arduino_parser(const char * filename, int longest_e
     int numEntries = 0, longestEntry = 0;
     getFormatData(&json_file, &numEntries, &longestEntry);
     this->_longestEntry = longest_entry_buffer;
-    this->size = numEntries;
+    this->_size = numEntries;
     this->data = new char**[numEntries];
-    for(int i = 0; i < this->size; ++i){
+    for(int i = 0; i < this->_size; ++i){
         this->data[i] = new char*[2];
         this->data[i][0] = new char[longest_entry_buffer];
         this->data[i][1] = new char[longest_entry_buffer];
@@ -61,21 +61,21 @@ json_parser::arduino_parser::arduino_parser(const char * filename, int longest_e
 
 json_parser::arduino_parser& json_parser::arduino_parser::operator=(const arduino_parser& p){
     delete [] this->filename;
-    for(int i = 0; i < this->size; ++i){
+    for(int i = 0; i < this->_size; ++i){
         delete [] this->data[i][0];
         delete [] this->data[i][1];
         delete [] this->data[i];
     }
     delete [] this->data;
 
-    this->size = p.size;
+    this->_size = p._size;
     this->_longestEntry = p._longestEntry;
 
     this->filename = new char[strlen(p.filename) + 1];
     strcpy(this->filename, p.filename);
 
-    this->data = new char**[this->size];
-    for(int i = 0; i < this->size; ++i){
+    this->data = new char**[this->_size];
+    for(int i = 0; i < this->_size; ++i){
         this->data[i] = new char*[2];
         this->data[i][0] = new char[this->_longestEntry];
         this->data[i][1] = new char[this->_longestEntry];
@@ -84,7 +84,7 @@ json_parser::arduino_parser& json_parser::arduino_parser::operator=(const arduin
         memset(this->data[i][1], 0, this->_longestEntry);
     }
 
-    for(int i = 0; i < this->size; ++i){
+    for(int i = 0; i < this->_size; ++i){
         strcpy(this->data[i][0], p.data[i][0]);
         strcpy(this->data[i][1], p.data[i][1]);
     }
@@ -93,14 +93,14 @@ json_parser::arduino_parser& json_parser::arduino_parser::operator=(const arduin
 
 json_parser::arduino_parser::arduino_parser(const arduino_parser& p){
 
-    this->size = p.size;
+    this->_size = p._size;
     this->_longestEntry = p._longestEntry;
 
     this->filename = new char[strlen(p.filename) + 1];
     strcpy(this->filename, p.filename);
 
-    this->data = new char**[this->size];
-    for(int i = 0; i < this->size; ++i){
+    this->data = new char**[this->_size];
+    for(int i = 0; i < this->_size; ++i){
         this->data[i] = new char*[2];
         this->data[i][0] = new char[this->_longestEntry];
         this->data[i][1] = new char[this->_longestEntry];
@@ -109,7 +109,7 @@ json_parser::arduino_parser::arduino_parser(const arduino_parser& p){
         memset(this->data[i][1], 0, this->_longestEntry);
     }
 
-    for(int i = 0; i < this->size; ++i){
+    for(int i = 0; i < this->_size; ++i){
         strcpy(this->data[i][0], p.data[i][0]);
         strcpy(this->data[i][1], p.data[i][1]);
     }
@@ -235,13 +235,17 @@ u_int8_t json_parser::arduino_parser::setData(File *f){
     return 1;
 }
 
+size_t json_parser::arduino_parser::size(){
+    return this->_size;
+}
+
 u_int8_t json_parser::arduino_parser::save(const char *filename){
     File file = SD.open(filename, FILE_WRITE);
     if(file == NULL){
         return 0;
     }
     file.write("{");
-    for(int i = 0; i < this->size - 1; ++i){
+    for(int i = 0; i < this->_size - 1; ++i){
         file.write("\n\t\"");
         file.write(this->data[i][0]);
         file.write("\":\"");
@@ -249,9 +253,9 @@ u_int8_t json_parser::arduino_parser::save(const char *filename){
         file.write(",");
     }
     file.write("\n\t\"");
-    file.write(this->data[this->size - 1][0]);
+    file.write(this->data[this->_size - 1][0]);
     file.write("\":\"");
-    file.write(this->data[this->size - 1][1]);
+    file.write(this->data[this->_size - 1][1]);
     file.write("\n}");
     file.close();
     return 1;
@@ -262,7 +266,7 @@ u_int8_t json_parser::arduino_parser::save(){
 }
 
 char *json_parser::arduino_parser::get(const char *key)const{
-    for(int i = 0; i < this->size; ++i){
+    for(int i = 0; i < this->_size; ++i){
         if(strcmp(this->data[i][0], key) == 0){
             return this->data[i][1];
         }
@@ -271,7 +275,7 @@ char *json_parser::arduino_parser::get(const char *key)const{
 }
 
 u_int8_t json_parser::arduino_parser::set(const char*key, char *value){
-    for(int i = 0; i < this->size; ++i){
+    for(int i = 0; i < this->_size; ++i){
         if(strcmp(this->data[i][0], key) == 0){
             if(strlen(value) > this->_longestEntry){
                 
@@ -285,7 +289,7 @@ u_int8_t json_parser::arduino_parser::set(const char*key, char *value){
 
 json_parser::arduino_parser::~arduino_parser(){
     delete [] this->filename;
-    for(int i = 0; i < this->size; ++i){
+    for(int i = 0; i < this->_size; ++i){
         delete [] this->data[i][0];
         delete [] this->data[i][1];
         delete [] this->data[i];

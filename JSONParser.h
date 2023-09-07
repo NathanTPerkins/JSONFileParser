@@ -19,7 +19,7 @@ namespace json_parser{
     private:
     char ***data;
     char * filename;
-    size_t size;
+    size_t _size;
     int _longestEntry;
 
     u_int8_t bracketCheck(FILE *);
@@ -34,6 +34,7 @@ namespace json_parser{
     parser& operator=(const parser&);
     parser(const parser&);
 
+    size_t size();
     char * get(const char *)const;
     u_int8_t set(const char *, char *);
     u_int8_t save(const char *);
@@ -47,7 +48,7 @@ namespace json_parser{
     private:
     char ***data;
     char * filename;
-    size_t size;
+    size_t _size;
     int _longestEntry;
 
     u_int8_t bracketCheck(File *);
@@ -63,6 +64,7 @@ namespace json_parser{
     arduino_parser& operator=(const arduino_parser&);
     arduino_parser(const arduino_parser&);
 
+    size_t size();
     char * get(const char *)const;
     u_int8_t set(const char *, char *);
     u_int8_t save(const char *);

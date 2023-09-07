@@ -14,9 +14,9 @@ json_parser::parser::parser(const char * filename){
     int numEntries = 0, longestEntry = 0;
     getFormatData(json_file, &numEntries, &longestEntry);
     this->_longestEntry = longestEntry;
-    this->size = numEntries;
+    this->_size = numEntries;
     this->data = new char**[numEntries];
-    for(int i = 0; i < this->size; ++i){
+    for(int i = 0; i < this->_size; ++i){
         this->data[i] = new char*[2];
         this->data[i][0] = new char[longestEntry];
         this->data[i][1] = new char[longestEntry];
@@ -44,9 +44,9 @@ json_parser::parser::parser(const char * filename, int longest_entry_buffer){
     int numEntries = 0, longestEntry = 0;
     getFormatData(json_file, &numEntries, &longestEntry);
     this->_longestEntry = longest_entry_buffer;
-    this->size = numEntries;
+    this->_size = numEntries;
     this->data = new char**[numEntries];
-    for(int i = 0; i < this->size; ++i){
+    for(int i = 0; i < this->_size; ++i){
         this->data[i] = new char*[2];
         this->data[i][0] = new char[longest_entry_buffer];
         this->data[i][1] = new char[longest_entry_buffer];
@@ -62,21 +62,21 @@ json_parser::parser::parser(const char * filename, int longest_entry_buffer){
 
 json_parser::parser& json_parser::parser::operator=(const parser& p){
     delete [] this->filename;
-    for(int i = 0; i < this->size; ++i){
+    for(int i = 0; i < this->_size; ++i){
         delete [] this->data[i][0];
         delete [] this->data[i][1];
         delete [] this->data[i];
     }
     delete [] this->data;
 
-    this->size = p.size;
+    this->_size = p._size;
     this->_longestEntry = p._longestEntry;
 
     this->filename = new char[strlen(p.filename) + 1];
     strcpy(this->filename, p.filename);
 
-    this->data = new char**[this->size];
-    for(int i = 0; i < this->size; ++i){
+    this->data = new char**[this->_size];
+    for(int i = 0; i < this->_size; ++i){
         this->data[i] = new char*[2];
         this->data[i][0] = new char[this->_longestEntry];
         this->data[i][1] = new char[this->_longestEntry];
@@ -85,7 +85,7 @@ json_parser::parser& json_parser::parser::operator=(const parser& p){
         memset(this->data[i][1], 0, this->_longestEntry);
     }
 
-    for(int i = 0; i < this->size; ++i){
+    for(int i = 0; i < this->_size; ++i){
         strcpy(this->data[i][0], p.data[i][0]);
         strcpy(this->data[i][1], p.data[i][1]);
     }
@@ -94,14 +94,14 @@ json_parser::parser& json_parser::parser::operator=(const parser& p){
 
 json_parser::parser::parser(const parser& p){
 
-    this->size = p.size;
+    this->_size = p._size;
     this->_longestEntry = p._longestEntry;
 
     this->filename = new char[strlen(p.filename) + 1];
     strcpy(this->filename, p.filename);
 
-    this->data = new char**[this->size];
-    for(int i = 0; i < this->size; ++i){
+    this->data = new char**[this->_size];
+    for(int i = 0; i < this->_size; ++i){
         this->data[i] = new char*[2];
         this->data[i][0] = new char[this->_longestEntry];
         this->data[i][1] = new char[this->_longestEntry];
@@ -110,7 +110,7 @@ json_parser::parser::parser(const parser& p){
         memset(this->data[i][1], 0, this->_longestEntry);
     }
 
-    for(int i = 0; i < this->size; ++i){
+    for(int i = 0; i < this->_size; ++i){
         strcpy(this->data[i][0], p.data[i][0]);
         strcpy(this->data[i][1], p.data[i][1]);
     }
@@ -229,16 +229,20 @@ u_int8_t json_parser::parser::setData(FILE *f){
     return 1;
 }
 
+size_t json_parser::parser::size(){
+    return this->_size;
+}
+
 u_int8_t json_parser::parser::save(const char *filename){
     FILE *file = fopen(filename, "w");
     if(file == NULL){
         return 0;
     }
     fprintf(file, "{");
-    for(int i = 0; i < this->size - 1; ++i){
+    for(int i = 0; i < this->_size - 1; ++i){
         fprintf(file, "\n\t\"%s\":\"%s\",", this->data[i][0], this->data[i][1]);
     }
-    fprintf(file, "\n\t\"%s\":\"%s\"", this->data[this->size - 1][0], this->data[this->size - 1][1]);
+    fprintf(file, "\n\t\"%s\":\"%s\"", this->data[this->_size - 1][0], this->data[this->_size - 1][1]);
     fprintf(file, "\n}");
     fclose(file);
     return 1;
@@ -249,7 +253,7 @@ u_int8_t json_parser::parser::save(){
 }
 
 char *json_parser::parser::get(const char *key)const{
-    for(int i = 0; i < this->size; ++i){
+    for(int i = 0; i < this->_size; ++i){
         if(strcmp(this->data[i][0], key) == 0){
             return this->data[i][1];
         }
@@ -258,7 +262,7 @@ char *json_parser::parser::get(const char *key)const{
 }
 
 u_int8_t json_parser::parser::set(const char*key, char *value){
-    for(int i = 0; i < this->size; ++i){
+    for(int i = 0; i < this->_size; ++i){
         if(strcmp(this->data[i][0], key) == 0){
             if(strlen(value) > this->_longestEntry){
                 
@@ -272,7 +276,7 @@ u_int8_t json_parser::parser::set(const char*key, char *value){
 
 json_parser::parser::~parser(){
     delete [] this->filename;
-    for(int i = 0; i < this->size; ++i){
+    for(int i = 0; i < this->_size; ++i){
         delete [] this->data[i][0];
         delete [] this->data[i][1];
         delete [] this->data[i];
