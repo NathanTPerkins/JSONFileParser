@@ -4,8 +4,6 @@
 #include <string.h>
 #include <stdio.h>
 
-#define ARDUINO_PARSER
-
 #ifdef ARDUINO_PARSER
 #include <SD.h>
 #include <Arduino.h>
