@@ -1,3 +1,5 @@
+#ifdef ARDUINO_PARSER
+
 #include "JSONParser.h"
 
 json_parser::arduino_parser::arduino_parser(const char * filename){
@@ -296,3 +298,5 @@ json_parser::arduino_parser::~arduino_parser(){
     }
     delete [] this->data;
 }
+
+#endif
