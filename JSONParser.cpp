@@ -229,6 +229,34 @@ u_int8_t json_parser::parser::setData(FILE *f){
     return 1;
 }
 
+u_int8_t json_parser::parser::reload(){
+    FILE * json_file = fopen(filename, "r");
+    if(json_file == NULL){
+        return 0;
+    }
+    if(!bracketCheck(json_file)){
+        return 0;
+    }
+    int numEntries = 0, longestEntry = 0;
+    getFormatData(json_file, &numEntries, &longestEntry);
+    this->_longestEntry = longestEntry;
+    this->_size = numEntries;
+    this->data = new char**[numEntries];
+    for(int i = 0; i < this->_size; ++i){
+        this->data[i] = new char*[2];
+        this->data[i][0] = new char[longestEntry];
+        this->data[i][1] = new char[longestEntry];
+
+        memset(this->data[i][0], 0, longestEntry);
+        memset(this->data[i][1], 0, longestEntry);
+    }
+
+    setData(json_file);
+
+    fclose(json_file);
+    return 1;
+}
+
 size_t json_parser::parser::size(){
     return this->_size;
 }
@@ -250,6 +278,10 @@ u_int8_t json_parser::parser::save(const char *filename){
 
 u_int8_t json_parser::parser::save(){
     return this->save(this->filename);
+}
+
+char *json_parser::parser::operator[](const char *key){
+    return this->get(key);
 }
 
 char *json_parser::parser::get(const char *key)const{

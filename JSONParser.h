@@ -30,8 +30,10 @@ namespace json_parser{
     parser() = delete;
     ~parser();
     parser& operator=(const parser&);
+    char *operator[](const char *);
     parser(const parser&);
 
+    u_int8_t reload();
     size_t size();
     char * get(const char *)const;
     u_int8_t set(const char *, char *);
@@ -60,8 +62,10 @@ namespace json_parser{
     arduino_parser() = delete;
     ~arduino_parser();
     arduino_parser& operator=(const arduino_parser&);
+    char *operator[](const char *);
     arduino_parser(const arduino_parser&);
 
+    u_int8_t reload();
     size_t size();
     char * get(const char *)const;
     u_int8_t set(const char *, char *);
