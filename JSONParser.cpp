@@ -230,6 +230,12 @@ u_int8_t json_parser::parser::setData(FILE *f){
 }
 
 u_int8_t json_parser::parser::reload(){
+    for(int i = 0; i < this->_size; ++i){
+        delete [] this->data[i][0];
+        delete [] this->data[i][1];
+        delete [] this->data[i];
+    }
+    delete [] this->data;
     FILE * json_file = fopen(filename, "r");
     if(json_file == NULL){
         return 0;

@@ -1,6 +1,7 @@
 #ifdef ARDUINO_PARSER
 
 #include "JSONParser.h"
+#include <errno.h>
 
 json_parser::arduino_parser::arduino_parser(const char * filename){
     this->filename = new char[strlen(filename) + 1];
@@ -119,7 +120,8 @@ json_parser::arduino_parser::arduino_parser(const arduino_parser& p){
 
 u_int8_t json_parser::arduino_parser::bracketCheck(File * json_file){
     char c, bracket;
-    while((c = json_file->read()) != EOF){
+    while(json_file->available()){
+        c = json_file->read();
         if(c == '{'){
             bracket = '{';
         }
@@ -134,7 +136,8 @@ void json_parser::arduino_parser::rewind(File* input_file){
     char filename[strlen(input_file->name()) + 1];
     strcpy(filename, input_file->name());
     input_file->close();
-    *input_file = SD.open(filename, FILE_READ);
+    errno = 0;
+    *input_file = SD.open(filename, 'r');
 }
 
 u_int8_t json_parser::arduino_parser::getFormatData(File * json_file, int * numEntries, int * longestEntry){
@@ -147,7 +150,8 @@ u_int8_t json_parser::arduino_parser::getFormatData(File * json_file, int * numE
     int long_e = 0;
     *numEntries = 0;
     *longestEntry = 0;
-    while((c = json_file->read()) != EOF){
+    while(json_file->available()){
+        c = json_file->read();
         if(c == '\n' || c == 32 || c == '{' || c == '\t'){
             if(inQuotes && c == 32){
                 ++long_e;
@@ -195,7 +199,8 @@ u_int8_t json_parser::arduino_parser::setData(File *f){
     bool hasKey = false, inBracket = true, inQuotes = false;
     int long_e = 0;
     int i = 0, j = 0;
-    while((c = f->read()) != EOF){
+    while(f->available()){
+        c = f->read();
         if(c == '\n' || c == 32 || c == '{' || c == '\t'){
             if(inQuotes && c == 32){
                 strncat(this->data[i][j], &c, 1);
@@ -238,6 +243,12 @@ u_int8_t json_parser::arduino_parser::setData(File *f){
 }
 
 u_int8_t json_parser::arduino_parser::reload(){
+    for(int i = 0; i < this->_size; ++i){
+        delete [] this->data[i][0];
+        delete [] this->data[i][1];
+        delete [] this->data[i];
+    }
+    delete [] this->data;
     File json_file = SD.open(filename, FILE_READ);
     if(json_file == NULL){
         return 0;
@@ -270,7 +281,7 @@ size_t json_parser::arduino_parser::size(){
 }
 
 u_int8_t json_parser::arduino_parser::save(const char *filename){
-    File file = SD.open(filename, FILE_WRITE);
+    File file = SD.open(filename, O_WRITE);
     if(file == NULL){
         return 0;
     }
