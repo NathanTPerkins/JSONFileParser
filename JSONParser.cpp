@@ -6,10 +6,18 @@ json_parser::parser::parser(const char * filename){
 
     FILE * json_file = fopen(filename, "r");
     if(json_file == NULL){
+        #ifndef NO_THROW
         throw ERROR_CODES::FILE_NOT_FOUND;
+        #else
+        return;
+        #endif
     }
     if(!bracketCheck(json_file)){
+        #ifndef NO_THROW
         throw ERROR_CODES::FILE_FORMATTING_ERROR;
+        #else
+        return;
+        #endif
     }
     int numEntries = 0, longestEntry = 0;
     getFormatData(json_file, &numEntries, &longestEntry);
@@ -36,10 +44,18 @@ json_parser::parser::parser(const char * filename, int longest_entry_buffer){
 
     FILE * json_file = fopen(filename, "r");
     if(json_file == NULL){
+        #ifndef NO_THROW
         throw ERROR_CODES::FILE_NOT_FOUND;
+        #else
+        return;
+        #endif
     }
     if(!bracketCheck(json_file)){
+        #ifndef NO_THROW
         throw ERROR_CODES::FILE_FORMATTING_ERROR;
+        #else
+        return;
+        #endif
     }
     int numEntries = 0, longestEntry = 0;
     getFormatData(json_file, &numEntries, &longestEntry);
