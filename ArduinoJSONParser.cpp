@@ -14,8 +14,10 @@ json_parser::arduino_parser::arduino_parser(const char * filename){
     if(!bracketCheck(&json_file)){
         return;
     }
+    rewind(&json_file);
     int numEntries = 0, longestEntry = 0;
     getFormatData(&json_file, &numEntries, &longestEntry);
+    rewind(&json_file);
     this->_longestEntry = longestEntry;
     this->_size = numEntries;
     this->data = new char**[numEntries];
@@ -27,7 +29,7 @@ json_parser::arduino_parser::arduino_parser(const char * filename){
         memset(this->data[i][0], 0, longestEntry);
         memset(this->data[i][1], 0, longestEntry);
     }
-
+    rewind(&json_file);
     setData(&json_file);
 
     json_file.close();
@@ -133,11 +135,9 @@ u_int8_t json_parser::arduino_parser::bracketCheck(File * json_file){
 }
 
 void json_parser::arduino_parser::rewind(File* input_file){
-    char filename[strlen(input_file->name()) + 1];
-    strcpy(filename, input_file->name());
     input_file->close();
     errno = 0;
-    *input_file = SD.open(filename, 'r');
+    *input_file = SD.open(this->filename, FILE_READ);
 }
 
 u_int8_t json_parser::arduino_parser::getFormatData(File * json_file, int * numEntries, int * longestEntry){
