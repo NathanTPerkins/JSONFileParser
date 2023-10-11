@@ -150,7 +150,6 @@ u_int8_t json_parser::arduino_parser::getFormatData(File * json_file, int * numE
     int long_e = 0;
     *numEntries = 0;
     *longestEntry = 0;
-    Serial.println(*numEntries);
     while(json_file->available()){
         c = json_file->read();
         if(c == '\n' || c == 32 || c == '{' || c == '\t'){
@@ -165,7 +164,6 @@ u_int8_t json_parser::arduino_parser::getFormatData(File * json_file, int * numE
             }
             if((c == 44 || c == '}') && hasKey){
                 *numEntries += 1;
-                Serial.println(*numEntries);
                 hasKey = false;
             }
             if(c == ':' || c == ','){
@@ -314,7 +312,6 @@ char *json_parser::arduino_parser::operator[](const char *key){
 
 char *json_parser::arduino_parser::get(const char *key)const{
     for(int i = 0; i < this->_size; ++i){
-        Serial.println("KEY:  " + String(this->data[i][0]));
         if(strcmp(this->data[i][0], key) == 0){
             return this->data[i][1];
         }
