@@ -312,6 +312,7 @@ char *json_parser::arduino_parser::operator[](const char *key){
 
 char *json_parser::arduino_parser::get(const char *key)const{
     for(int i = 0; i < this->_size; ++i){
+        Serial.println("KEY:  " + String(this->data[i][0]));
         if(strcmp(this->data[i][0], key) == 0){
             return this->data[i][1];
         }
