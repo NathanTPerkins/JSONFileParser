@@ -285,6 +285,7 @@ u_int8_t json_parser::arduino_parser::save(const char *filename){
     if(file == NULL){
         return 0;
     }
+    file.truncate();
     file.write("{");
     for(int i = 0; i < this->_size - 1; ++i){
         file.write("\n\t\"");
